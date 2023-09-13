@@ -183,6 +183,30 @@ func (c *Client) VerifyQuery(vals url.Values) (V, error) {
 	return ret, nil
 }
 
+// ReplyHTML 通知相应
+func (c *Client) ReplyHTML(data V) (string, error) {
+	if c.prvKey == nil {
+		return "", errors.New("private key is nil (forgotten configure?)")
+	}
+
+	data.Set("mer_id", c.mchID)
+	data.Set("sign_type", "RSA")
+	data.Set("version", "4.0")
+
+	signStr := data.Encode("=", "&", WithEmptyEncMode(EmptyEncIgnore), WithIgnoreKeys("sign", "sign_type"))
+
+	sign, err := c.prvKey.Sign(crypto.SHA256, []byte(signStr))
+	if err != nil {
+		return "", err
+	}
+
+	data.Set("sign", base64.StdEncoding.EncodeToString(sign))
+
+	html := fmt.Sprintf(`<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><META NAME="MobilePayPlatform" CONTENT="%s"/></head><body></body></html>`, data.Encode("=", "&", WithEmptyEncMode(EmptyEncIgnore)))
+
+	return html, nil
+}
+
 // Option 自定义设置项
 type Option func(c *Client)
 
