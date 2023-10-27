@@ -12,12 +12,12 @@ import (
 	"path/filepath"
 )
 
-// RSAPaddingMode RSA PEM 填充模式
-type RSAPaddingMode int
+// RSAPadding RSA PEM 填充模式
+type RSAPadding int
 
 const (
-	RSA_PKCS1 RSAPaddingMode = 1 // PKCS#1 (格式：`RSA PRIVATE KEY` 和 `RSA PUBLIC KEY`)
-	RSA_PKCS8 RSAPaddingMode = 8 // PKCS#8 (格式：`PRIVATE KEY` 和 `PUBLIC KEY`)
+	RSA_PKCS1 RSAPadding = 1 // PKCS#1 (格式：`RSA PRIVATE KEY` 和 `RSA PUBLIC KEY`)
+	RSA_PKCS8 RSAPadding = 8 // PKCS#8 (格式：`PRIVATE KEY` 和 `PUBLIC KEY`)
 )
 
 // PrivateKey RSA私钥
@@ -52,7 +52,7 @@ func (pk *PrivateKey) Sign(hash crypto.Hash, data []byte) ([]byte, error) {
 }
 
 // NewPrivateKeyFromPemBlock 通过PEM字节生成RSA私钥
-func NewPrivateKeyFromPemBlock(mode RSAPaddingMode, pemBlock []byte) (*PrivateKey, error) {
+func NewPrivateKeyFromPemBlock(padding RSAPadding, pemBlock []byte) (*PrivateKey, error) {
 	block, _ := pem.Decode(pemBlock)
 	if block == nil {
 		return nil, errors.New("no PEM data is found")
@@ -63,7 +63,7 @@ func NewPrivateKeyFromPemBlock(mode RSAPaddingMode, pemBlock []byte) (*PrivateKe
 		err error
 	)
 
-	switch mode {
+	switch padding {
 	case RSA_PKCS1:
 		pk, err = x509.ParsePKCS1PrivateKey(block.Bytes)
 	case RSA_PKCS8:
@@ -78,7 +78,7 @@ func NewPrivateKeyFromPemBlock(mode RSAPaddingMode, pemBlock []byte) (*PrivateKe
 }
 
 // NewPrivateKeyFromPemFile  通过PEM文件生成RSA私钥
-func NewPrivateKeyFromPemFile(mode RSAPaddingMode, pemFile string) (*PrivateKey, error) {
+func NewPrivateKeyFromPemFile(padding RSAPadding, pemFile string) (*PrivateKey, error) {
 	keyPath, err := filepath.Abs(pemFile)
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func NewPrivateKeyFromPemFile(mode RSAPaddingMode, pemFile string) (*PrivateKey,
 		return nil, err
 	}
 
-	return NewPrivateKeyFromPemBlock(mode, b)
+	return NewPrivateKeyFromPemBlock(padding, b)
 }
 
 // NewPrivateKeyFromPfxFile 通过pfx(p12)证书生成RSA私钥
@@ -135,7 +135,7 @@ func (pk *PublicKey) Verify(hash crypto.Hash, data, signature []byte) error {
 }
 
 // NewPublicKeyFromPemBlock 通过PEM字节生成RSA公钥
-func NewPublicKeyFromPemBlock(mode RSAPaddingMode, pemBlock []byte) (*PublicKey, error) {
+func NewPublicKeyFromPemBlock(padding RSAPadding, pemBlock []byte) (*PublicKey, error) {
 	block, _ := pem.Decode(pemBlock)
 	if block == nil {
 		return nil, errors.New("no PEM data is found")
@@ -146,7 +146,7 @@ func NewPublicKeyFromPemBlock(mode RSAPaddingMode, pemBlock []byte) (*PublicKey,
 		err error
 	)
 
-	switch mode {
+	switch padding {
 	case RSA_PKCS1:
 		pk, err = x509.ParsePKCS1PublicKey(block.Bytes)
 	case RSA_PKCS8:
@@ -161,7 +161,7 @@ func NewPublicKeyFromPemBlock(mode RSAPaddingMode, pemBlock []byte) (*PublicKey,
 }
 
 // NewPublicKeyFromPemFile 通过PEM文件生成RSA公钥
-func NewPublicKeyFromPemFile(mode RSAPaddingMode, pemFile string) (*PublicKey, error) {
+func NewPublicKeyFromPemFile(padding RSAPadding, pemFile string) (*PublicKey, error) {
 	keyPath, err := filepath.Abs(pemFile)
 	if err != nil {
 		return nil, err
@@ -172,7 +172,7 @@ func NewPublicKeyFromPemFile(mode RSAPaddingMode, pemFile string) (*PublicKey, e
 		return nil, err
 	}
 
-	return NewPublicKeyFromPemBlock(mode, b)
+	return NewPublicKeyFromPemBlock(padding, b)
 }
 
 // NewPublicKeyFromDerBlock 通过DER字节生成RSA公钥
