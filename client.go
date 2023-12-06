@@ -131,7 +131,7 @@ func (c *Client) reqForm(service string, bizData V) (string, error) {
 	bizData.Set("version", "4.0")
 	bizData.Set("mer_id", c.mchID)
 
-	signStr := bizData.Encode("=", "&", WithEmptyEncMode(EmptyEncIgnore), WithIgnoreKeys("sign", "sign_type"))
+	signStr := bizData.Encode("=", "&", WithEmptyMode(EmptyIgnore), WithIgnoreKeys("sign", "sign_type"))
 
 	sign, err := c.prvKey.Sign(crypto.SHA1, []byte(signStr))
 	if err != nil {
@@ -140,7 +140,7 @@ func (c *Client) reqForm(service string, bizData V) (string, error) {
 
 	bizData.Set("sign", base64.StdEncoding.EncodeToString(sign))
 
-	return bizData.Encode("=", "&", WithEmptyEncMode(EmptyEncIgnore)), nil
+	return bizData.Encode("=", "&", WithEmptyMode(EmptyIgnore)), nil
 }
 
 func (c *Client) VerifyHTML(body []byte) (V, error) {
@@ -193,7 +193,7 @@ func (c *Client) ReplyHTML(data V) (string, error) {
 	data.Set("sign_type", "RSA")
 	data.Set("version", "4.0")
 
-	signStr := data.Encode("=", "&", WithEmptyEncMode(EmptyEncIgnore), WithIgnoreKeys("sign", "sign_type"))
+	signStr := data.Encode("=", "&", WithEmptyMode(EmptyIgnore), WithIgnoreKeys("sign", "sign_type"))
 
 	sign, err := c.prvKey.Sign(crypto.SHA256, []byte(signStr))
 	if err != nil {
@@ -202,7 +202,7 @@ func (c *Client) ReplyHTML(data V) (string, error) {
 
 	data.Set("sign", base64.StdEncoding.EncodeToString(sign))
 
-	html := fmt.Sprintf(`<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><META NAME="MobilePayPlatform" CONTENT="%s"/></head><body></body></html>`, data.Encode("=", "&", WithEmptyEncMode(EmptyEncIgnore)))
+	html := fmt.Sprintf(`<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><META NAME="MobilePayPlatform" CONTENT="%s"/></head><body></body></html>`, data.Encode("=", "&", WithEmptyMode(EmptyIgnore)))
 
 	return html, nil
 }
